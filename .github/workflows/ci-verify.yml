@@ -1,0 +1,29 @@
+name: CI Verify (xuri/excelize)
+
+on:
+  push:
+    branches: ["ci/gha-verify"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Build
+        run: |
+          go build -v ./...
+      - name: Smoke test
+        run: go test -run "TestNewFile" -v .
